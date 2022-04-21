@@ -44,7 +44,6 @@ const schema = {
 
             })
 
-
             await required(this.fields, data)
 
             const local = path.resolve(__dirname, '..', 'db', row);
