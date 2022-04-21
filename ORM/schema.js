@@ -1,24 +1,32 @@
-const fs = require('fs');
-const path = require('path');
-const crypto = require("crypto");
+const fs = require('fs');// padrão do node = file system
+const path = require('path');// padrão do node = 
+
+// " win: area/projetos/ " 
+// " ubu: area\\projetos\\ " 
+
+const crypto = require("crypto");// padrão do node
+
+const { required } = require("./utils")
 
 const schema = {
-    data: [],
+    data: [], // 'pokedex' data é aonde fica armazenado em cache os dados
     fields: {},
     async define (row, fields) {
         this.fields = fields;
         try {
-            const storage = path.resolve(__dirname, '..', 'db', row);
+            const andress = path.resolve(__dirname, '..', 'db', row);
 
-            const files = await fs.promises.readdir(storage);
+            const fileNames = await fs.promises.readdir(andress);
 
-            this.data = await Promise.all(files?.map(async file => {
-                const response = await fs.promises.readFile(path.resolve(storage, file), 'utf8')
+            this.data = await Promise.all(fileNames?.map(async fileName => {
+                const response = await fs.promises.readFile(path.resolve(andress, fileName), 'utf8')
                 return JSON.parse(response.toString())
             }))
 
             return this.data;
-        } catch (err) {}
+        } catch (err) {
+            console.log(err);
+        }
     },
     async create (row, data) {
         try {
@@ -33,7 +41,11 @@ const schema = {
                     console.log("type error.");
                     throw new Error('all')
                 }
+
             })
+
+
+            await required(this.fields, data)
 
             const local = path.resolve(__dirname, '..', 'db', row);
             
